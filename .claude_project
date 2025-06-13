@@ -1,0 +1,121 @@
+{
+  "name": "AutoGen + Claude Code Integration",
+  "description": "Framework integrating Microsoft AutoGen with Claude Code CLI for autonomous code generation and execution",
+  "version": "1.0.0",
+  "last_updated": "2025-06-13",
+  
+  "core_components": {
+    "claude_integration": {
+      "main_file": "claude_working_demo.py",
+      "method": "subprocess with --print flag",
+      "parser": "regex for code blocks",
+      "executor": "Python exec()"
+    },
+    "autogen_setup": {
+      "main_file": "autogen_claude_final.py",
+      "orchestrator": "gpt-4o-mini",
+      "function_registration": "claude_execute",
+      "agent_type": "AssistantAgent + UserProxyAgent"
+    }
+  },
+  
+  "dependencies": {
+    "python": ">=3.8",
+    "autogen": "latest",
+    "claude": "CLI version",
+    "openai": "latest",
+    "rich": "for monitoring",
+    "pexpect": "for interactive experiments",
+    "python-dotenv": "for environment variables"
+  },
+  
+  "api_keys_required": [
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY (optional)"
+  ],
+  
+  "project_structure": {
+    "core_integration": [
+      "claude_working_demo.py",
+      "autogen_claude_final.py",
+      "test_final.py"
+    ],
+    "experiments": [
+      "claude_interactive_wrapper.py",
+      "claude_intelligent_wrapper.py",
+      "claude_autogen_wrapper.py",
+      "claude_simple_working.py"
+    ],
+    "trading_specific": [
+      "automated_backtest_orchestrator.py",
+      "run_overnight_continuous*.py",
+      "example_claude_enhanced_backtesting.py"
+    ],
+    "monitoring": [
+      "monitor_agents_live.py",
+      "monitor_claude_agents.py",
+      "stream_agent_conversation.sh"
+    ]
+  },
+  
+  "key_functions": {
+    "claude_code_generator": {
+      "file": "claude_working_demo.py",
+      "purpose": "Generate and execute code using Claude CLI",
+      "params": ["prompt", "working_dir"]
+    },
+    "claude_execute": {
+      "file": "claude_working_demo.py",
+      "purpose": "AutoGen-compatible wrapper",
+      "params": ["prompt", "working_dir"]
+    },
+    "create_claude_enhanced_agent": {
+      "file": "tools/autogen_claude_integration.py",
+      "purpose": "Create AutoGen agents with Claude capabilities",
+      "params": ["name", "system_message", "llm_config", "working_dir"]
+    }
+  },
+  
+  "testing": {
+    "unit_tests": "test_final.py",
+    "integration_tests": "test_claude_integration.py",
+    "demos": [
+      "simple_autogen_claude.py",
+      "demo_claude_cost_savings.py"
+    ]
+  },
+  
+  "monitoring_tools": {
+    "live_monitor": {
+      "command": "python monitor_agents_live.py",
+      "description": "Rich terminal UI for real-time agent monitoring"
+    },
+    "stream_logs": {
+      "command": "./stream_agent_conversation.sh",
+      "description": "Simple bash script for colored log streaming"
+    }
+  },
+  
+  "common_issues": {
+    "claude_not_found": "Install with: pip install claude",
+    "function_registration_fails": "Check function signature matches AutoGen requirements",
+    "code_execution_errors": "Review generated code for syntax issues",
+    "api_quota_exceeded": "Use quota-aware runners or implement rate limiting"
+  },
+  
+  "best_practices": [
+    "Always include 'Show me the complete code' in Claude prompts",
+    "Specify filenames explicitly for file creation",
+    "Run in isolated environments for safety",
+    "Monitor agent conversations during development",
+    "Use GPT-4o-mini for cost-effective orchestration"
+  ],
+  
+  "future_enhancements": [
+    "Multi-language support beyond Python",
+    "Rollback mechanism for file operations",
+    "Web-based monitoring dashboard",
+    "Docker containerization",
+    "Plugin architecture for custom agents"
+  ]
+}
