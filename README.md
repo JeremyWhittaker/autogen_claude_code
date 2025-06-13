@@ -40,6 +40,18 @@ autogen_claude_code/
 └── requirements.txt          # Python dependencies
 ```
 
+## ✨ Features
+
+- 🤖 Seamless integration between AutoGen agents and Claude
+- 💻 Direct code execution from Claude's output
+- 📝 Automatic code parsing and execution
+- 🔧 Simple function registration for AutoGen
+- ⚡ Fast and reliable communication
+- 🎯 Cost-effective with GPT-4o-mini as orchestrator
+- 📊 Web dashboard for real-time monitoring
+- 🔄 File operation logging and rollback capability
+- 🛡️ Enhanced error handling for malformed code blocks
+
 ## 🔧 Installation
 
 1. **Clone the repository:**
@@ -134,6 +146,49 @@ result = claude_execute(
     "Show me the complete refactored code."
 )
 ```
+
+## 📊 Web Dashboard
+
+The project includes a real-time web dashboard for monitoring agent conversations and file operations.
+
+### Starting the Dashboard
+
+```bash
+# Run the test dashboard
+python test_dashboard.py
+
+# Or integrate with your AutoGen setup
+python autogen_with_dashboard.py
+```
+
+### Dashboard Features
+
+- **Real-time Message Monitoring**: Watch agent conversations as they happen
+- **File Operation Tracking**: See all file creates, modifications, and deletions
+- **Rollback Capability**: Undo any file operation with one click
+- **Agent Status**: Monitor which agents are active
+- **Conversation History**: Browse past agent interactions
+- **Statistics**: View message counts and system activity
+
+### Dashboard Integration
+
+```python
+from web_dashboard import log_agent_message, update_agent_status, monitor
+
+# Start a new conversation
+monitor.start_conversation(["GPT-4", "Claude", "CodeExecutor"])
+
+# Log messages
+log_agent_message("GPT-4", "Let's create a Python script", "message")
+
+# Update agent status
+update_agent_status("Claude", "active")
+
+# End conversation
+monitor.end_conversation()
+```
+
+Access the dashboard at `http://localhost:5000` after starting.
 
 ## 🔐 Security Considerations
 

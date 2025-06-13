@@ -34,4 +34,4 @@ test_output/
 
 # Claude specific
 .claude_cache/
-claude_sessions/
+claude_sessions/.claude_logs/

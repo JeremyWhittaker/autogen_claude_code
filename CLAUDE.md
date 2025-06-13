@@ -41,11 +41,11 @@ The solution uses `claude --print` command to get Claude's response as text, the
 - No built-in rollback for file operations
 
 ### 🎯 Next Steps
-- [ ] Add error handling for malformed code blocks
-- [ ] Implement file operation logging
-- [ ] Create rollback mechanism for safety
+- [x] Add error handling for malformed code blocks
+- [x] Implement file operation logging
+- [ ] Create rollback mechanism for safety (partially complete - API exists)
 - [ ] Add support for multiple programming languages
-- [ ] Build web dashboard for monitoring
+- [x] Build web dashboard for monitoring
 
 ### 💡 Usage Tips
 1. Always include "Show me the complete code" in prompts to Claude
