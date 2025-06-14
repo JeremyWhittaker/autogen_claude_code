@@ -1,56 +1,62 @@
 # AutoGen + Claude Code Integration
 
-A working demonstration of integrating Microsoft's AutoGen framework with Anthropic's Claude Code CLI, enabling AI agents to write and execute code with full system permissions.
+A comprehensive framework for integrating Microsoft's AutoGen with Anthropic's Claude Code CLI, enabling AI agents to write, execute, and manage code with full system permissions. Features real-time monitoring, interactive chat interfaces, and complete file operation tracking.
 
 ## 🚀 Overview
 
-This project solves a key limitation in AutoGen: agents are typically restricted to sandboxed code execution. By integrating Claude Code CLI, AutoGen agents can now:
+This project breaks the traditional limitations of AutoGen's sandboxed code execution by integrating Claude Code CLI, enabling:
 
-- Generate and execute code with full system access
-- Create and modify files dynamically
-- Run shell commands and scripts
-- Build complete applications autonomously
+- 🤖 **Multi-Agent Orchestration**: GPT-4o-mini coordinates with Claude for complex tasks
+- 💻 **Unrestricted Code Execution**: Full system access for generated code
+- 📝 **Smart File Management**: Automatic creation, modification, and rollback capabilities
+- 🔄 **Real-time Monitoring**: Live web dashboard with Socket.IO integration
+- 💬 **Interactive Chat**: Multiple web-based interfaces for agent interaction
+- 📊 **Complete Tracking**: Comprehensive logging of all operations
 
-## 🎯 Key Innovation
+## 🎯 Key Features
 
-The integration uses Claude's `--print` flag to get generated code as text, which is then parsed and executed programmatically:
+### Core Capabilities
+- **Seamless AutoGen Integration**: Claude functions as a native AutoGen tool
+- **Intelligent Code Parsing**: Automatic extraction and execution of code blocks
+- **File Operation Tracking**: Complete history with atomic rollback support
+- **Cost-Effective**: Uses GPT-4o-mini for orchestration (~$0.001/request)
+- **Multiple Interfaces**: CLI, web dashboard, and interactive chat options
 
-```python
-# Call Claude with --print flag
-cmd = ["claude", "--print", prompt]
-result = subprocess.run(cmd, capture_output=True, text=True)
-
-# Parse code blocks
-code_blocks = re.findall(r'```python\n(.*?)\n```', result.stdout, re.DOTALL)
-
-# Execute the code
-exec(code, {'__builtins__': __builtins__})
-```
+### Web Interfaces
+- **Real-time Dashboard**: Monitor agent conversations as they happen
+- **Interactive Chat**: Direct communication with AI agents
+- **File Operation Viewer**: Track and rollback any file changes
+- **Socket.IO Streaming**: Sub-100ms latency for live updates
+- **Syntax Highlighting**: Beautiful code display with proper formatting
 
 ## 📁 Project Structure
 
 ```
 autogen_claude_code/
-├── claude_working_demo.py      # Core Claude integration implementation
-├── autogen_claude_final.py     # Complete AutoGen + Claude example
-├── test_final.py              # Test suite
-├── simple_autogen_claude.py   # Simplified demo
-├── examples/                  # Additional examples
-├── .env.example              # Environment variables template
-└── requirements.txt          # Python dependencies
+├── Core Integration
+│   ├── claude_working_demo.py      # Core Claude wrapper with file tracking
+│   ├── autogen_claude_final.py     # Complete AutoGen integration
+│   └── file_operation_logger.py    # File operation tracking system
+│
+├── Web Interfaces
+│   ├── web_dashboard.py            # Real-time monitoring dashboard
+│   ├── full_interactive_chat.py    # Complete chat interface
+│   ├── claude_chat_final.py        # Production-ready chat
+│   └── interactive_dashboard.py    # Enhanced dashboard features
+│
+├── Testing & Diagnostics
+│   ├── test_final.py              # Integration test suite
+│   ├── diagnostic_chat.py         # Socket.IO diagnostics
+│   └── test_dashboard.py          # Dashboard testing
+│
+├── Templates
+│   ├── templates/dashboard.html    # Dashboard UI
+│   └── templates/interactive_chat.html # Chat interface
+│
+└── Configuration
+    ├── .env.example               # Environment variables template
+    └── requirements.txt           # Python dependencies
 ```
-
-## ✨ Features
-
-- 🤖 Seamless integration between AutoGen agents and Claude
-- 💻 Direct code execution from Claude's output
-- 📝 Automatic code parsing and execution
-- 🔧 Simple function registration for AutoGen
-- ⚡ Fast and reliable communication
-- 🎯 Cost-effective with GPT-4o-mini as orchestrator
-- 📊 Web dashboard for real-time monitoring
-- 🔄 File operation logging and rollback capability
-- 🛡️ Enhanced error handling for malformed code blocks
 
 ## 🔧 Installation
 
@@ -70,7 +76,7 @@ pip install -r requirements.txt
 pip install claude
 ```
 
-4. **Set up environment variables:**
+4. **Configure environment:**
 ```bash
 cp .env.example .env
 # Edit .env and add your OpenAI API key
@@ -78,31 +84,68 @@ cp .env.example .env
 
 ## 🚦 Quick Start
 
-### Basic Test
+### Test the Integration
 ```bash
 python test_final.py
 ```
 
-### Interactive Demo
+### Run Interactive Demo
 ```bash
 python autogen_claude_final.py
 ```
 
-### Simple Example
+### Start Web Dashboard
+```bash
+python web_dashboard.py
+# Access at http://localhost:5000
+```
+
+### Launch Interactive Chat
+```bash
+python full_interactive_chat.py
+# Access at http://localhost:5001
+```
+
+## 💡 Usage Examples
+
+### Basic Code Generation
+```python
+from claude_working_demo import claude_execute
+
+# Generate a simple function
+result = claude_execute("Write a Python function to calculate fibonacci numbers")
+print(result)
+```
+
+### File Creation with Tracking
+```python
+# Create a file - automatically tracked and can be rolled back
+result = claude_execute(
+    "Create a file called app.py with a Flask hello world application. "
+    "Show me the complete code."
+)
+```
+
+### AutoGen Integration
 ```python
 from autogen import AssistantAgent, UserProxyAgent, register_function
 from claude_working_demo import claude_execute
 
-# Create agents
+# Configure AutoGen agents
+config_list = [{"model": "gpt-4o-mini", "api_key": os.getenv("OPENAI_API_KEY")}]
+
+# Create orchestrator agent
 assistant = AssistantAgent(
     name="Assistant",
     llm_config={"config_list": config_list},
-    system_message="Use claude_execute to generate code."
+    system_message="You are a helpful AI assistant. Use claude_execute to generate code."
 )
 
+# Create user proxy
 user_proxy = UserProxyAgent(
     name="User",
-    human_input_mode="ALWAYS"
+    human_input_mode="ALWAYS",
+    code_execution_config={"work_dir": "coding", "use_docker": False}
 )
 
 # Register Claude function
@@ -111,189 +154,236 @@ register_function(
     caller=assistant,
     executor=user_proxy,
     name="claude_execute",
-    description="Use Claude to generate code"
+    description="Use Claude to generate and execute code"
 )
 
 # Start conversation
 user_proxy.initiate_chat(
     assistant,
-    message="Create a Python script that calculates fibonacci numbers"
+    message="Create a Python web scraper that extracts headlines from a news website"
 )
 ```
 
-## 💡 Usage Examples
-
-### Generate a Script
-```python
-result = claude_execute(
-    "Create a file called hello.py that prints 'Hello, World!'. "
-    "Show me the complete code."
-)
-```
-
-### Create a Web Application
-```python
-result = claude_execute(
-    "Create a Flask web app in app.py with a homepage and API endpoint. "
-    "Show me the complete code."
-)
-```
-
-### Analyze and Refactor Code
-```python
-result = claude_execute(
-    "Analyze the code in main.py and create an optimized version. "
-    "Show me the complete refactored code."
-)
-```
-
-## 📊 Web Dashboard
-
-The project includes a real-time web dashboard for monitoring agent conversations and file operations.
-
-### Starting the Dashboard
-
-```bash
-# Run the test dashboard
-python test_dashboard.py
-
-# Or integrate with your AutoGen setup
-python autogen_with_dashboard.py
-```
-
-### Dashboard Features
-
-- **Real-time Message Monitoring**: Watch agent conversations as they happen
-- **File Operation Tracking**: See all file creates, modifications, and deletions
-- **Rollback Capability**: Undo any file operation with one click
-- **Agent Status**: Monitor which agents are active
-- **Conversation History**: Browse past agent interactions
-- **Statistics**: View message counts and system activity
-
-### Dashboard Integration
-
+### Web Dashboard Integration
 ```python
 from web_dashboard import log_agent_message, update_agent_status, monitor
 
-# Start a new conversation
-monitor.start_conversation(["GPT-4", "Claude", "CodeExecutor"])
+# Start monitoring a conversation
+monitor.start_conversation(["Assistant", "Claude", "User"])
 
-# Log messages
-log_agent_message("GPT-4", "Let's create a Python script", "message")
-
-# Update agent status
+# Log messages in real-time
+log_agent_message("Assistant", "I'll help you create that web scraper", "message")
 update_agent_status("Claude", "active")
 
-# End conversation
-monitor.end_conversation()
+# Track file operations automatically
+# All file operations are logged and can be rolled back via the dashboard
 ```
-
-Access the dashboard at `http://localhost:5000` after starting.
-
-## 🔐 Security Considerations
-
-⚠️ **Warning**: Claude Code executes with full system permissions. 
-
-- Run in isolated environments (Docker, VM)
-- Review generated code before production use
-- Don't expose to untrusted users
-- Monitor file system changes
-
-## 🛠️ How It Works
-
-1. **AutoGen Orchestration**: GPT-4 (or other LLM) coordinates the task
-2. **Claude Integration**: When code is needed, AutoGen calls `claude_execute`
-3. **Code Generation**: Claude generates code based on the prompt
-4. **Parsing**: The system extracts code blocks from Claude's response
-5. **Execution**: Code is executed using Python's `exec()`
-6. **Results**: Output is returned to AutoGen for further processing
 
 ## 📊 Architecture
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   User      │────▶│   AutoGen    │────▶│   Claude    │
-│             │     │ (GPT-4)      │     │   Code      │
-└─────────────┘     └──────────────┘     └─────────────┘
-                            │                     │
-                            ▼                     ▼
-                    ┌──────────────┐     ┌─────────────┐
-                    │  Function    │────▶│   Parse &   │
-                    │ Registration │     │   Execute   │
-                    └──────────────┘     └─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    User Interface Layer                   │
+├─────────────────┬───────────────────┬───────────────────┤
+│  Web Dashboard  │ Interactive Chat  │   CLI Interface   │
+│   Port: 5000    │   Port: 5001     │    Direct Call    │
+└────────┬────────┴────────┬──────────┴────────┬──────────┘
+         │     Socket.IO    │                  │
+┌────────▼─────────────────▼───────────────────▼──────────┐
+│                  AutoGen Framework                       │
+│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │
+│  │ Orchestrator│  │Code Executor │  │Claude Function│  │
+│  │(GPT-4o-mini)│  │ (UserProxy)  │  │  (Wrapper)    │  │
+│  └─────────────┘  └──────────────┘  └───────┬───────┘  │
+└──────────────────────────────────────────────┼──────────┘
+                                               │
+┌──────────────────────────────────────────────▼──────────┐
+│                   Claude Integration                     │
+│  ┌────────────────┐  ┌─────────────┐  ┌──────────────┐ │
+│  │ claude --print │  │Code Parser  │  │File Creator  │ │
+│  │   subprocess   │  │   (regex)   │  │   (exec)     │ │
+│  └────────────────┘  └─────────────┘  └──────────────┘ │
+└─────────────────────────────────────────────────────────┘
+                                               │
+┌──────────────────────────────────────────────▼──────────┐
+│                  Infrastructure Layer                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │File Operation│  │   SocketIO   │  │   JSON       │  │
+│  │   Logger     │  │  Real-time   │  │   Storage    │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+└─────────────────────────────────────────────────────────┘
 ```
 
-## 🐛 Troubleshooting
+## 🔐 Security Considerations
 
-### Claude command not found
-```bash
-pip install claude
-```
+⚠️ **CRITICAL SECURITY WARNINGS**:
 
-### API Key issues
-Ensure your `.env` file contains:
-```
-OPENAI_API_KEY=your-key-here
-```
+1. **Full System Access**: Claude Code executes with unrestricted permissions
+2. **No Sandboxing**: Generated code runs directly on your system
+3. **File Operations**: Can create, modify, or delete any accessible file
+4. **Network Access**: Generated code can make network requests
 
-### Code execution errors
-Check the generated code for syntax errors:
-```python
-# Add debug logging
-import logging
-logging.basicConfig(level=logging.DEBUG)
-```
+### Security Best Practices
+- ✅ Run in isolated environments (Docker, VM)
+- ✅ Review all generated code before production use
+- ✅ Use file operation rollback when testing
+- ✅ Monitor the dashboard during execution
+- ✅ Never expose web interfaces to public internet
+- ✅ Implement authentication before deployment
 
-## 📚 Advanced Usage
+## 🛠️ Advanced Configuration
 
 ### Custom System Messages
 ```python
 assistant = AssistantAgent(
-    name="Assistant",
+    name="CodeExpert",
     system_message="""You are an expert programmer. 
     When asked to create code:
     1. Use claude_execute function
     2. Always request 'complete code'
-    3. Specify the filename explicitly
+    3. Specify filenames explicitly
+    4. Include error handling
     """
 )
 ```
 
-### Error Handling
+### File Operation Rollback
 ```python
-try:
-    result = claude_execute(prompt)
-except subprocess.TimeoutExpired:
-    print("Claude timed out")
-except Exception as e:
-    print(f"Error: {e}")
+from file_operation_logger import FileOperationLogger
+
+logger = FileOperationLogger()
+
+# View operation history
+operations = logger.get_operation_history()
+
+# Rollback specific operation
+logger.rollback_operation(operation_id)
+
+# Rollback all operations in a session
+logger.rollback_all_operations()
 ```
 
-### Working Directory
+### Working Directory Control
 ```python
 # Execute in specific directory
-result = claude_execute(prompt, working_dir="/path/to/project")
+result = claude_execute(
+    prompt="Create a Django project structure",
+    working_dir="/path/to/projects"
+)
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Claude CLI not found
+```bash
+# Ensure Claude is installed
+pip install claude
+
+# Verify installation
+claude --version
+```
+
+#### Socket.IO Connection Issues
+```bash
+# Run diagnostics
+python diagnostic_chat.py
+
+# Check for port conflicts
+lsof -i :5000
+lsof -i :5001
+```
+
+#### API Key Problems
+```bash
+# Verify .env file
+cat .env
+
+# Test API key
+python -c "import openai; print('API key configured')"
+```
+
+### Debug Mode
+```python
+# Enable debug logging
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Run with verbose output
+result = claude_execute(prompt, debug=True)
+```
+
+## 📚 API Reference
+
+### claude_execute
+```python
+def claude_execute(prompt: str, working_dir: str = None, debug: bool = False) -> dict:
+    """
+    Execute a prompt using Claude and return results.
+    
+    Args:
+        prompt: The instruction for Claude
+        working_dir: Optional working directory
+        debug: Enable debug output
+        
+    Returns:
+        dict: {"success": bool, "output": str, "files_created": list}
+    """
+```
+
+### File Operation Logger
+```python
+class FileOperationLogger:
+    def log_operation(operation_type: str, file_path: str, content: str = None)
+    def rollback_operation(operation_id: str) -> bool
+    def get_operation_history(limit: int = 100) -> list
+    def rollback_all_operations() -> int
 ```
 
 ## 🤝 Contributing
 
-Contributions are welcome! Areas of interest:
-- Multi-language support (currently Python-focused)
-- Improved error handling
-- Sandbox execution options
-- Additional examples
-- Test coverage
+We welcome contributions! Key areas for improvement:
+
+- 🌐 Multi-language support (currently Python-focused)
+- 🔒 Sandboxing implementation
+- 🔐 Authentication system for web interfaces
+- 📱 Mobile-responsive UI
+- 🧪 Expanded test coverage
+- 📖 Additional documentation and examples
+
+### Development Setup
+```bash
+# Clone the repo
+git clone git@github.com:JeremyWhittaker/autogen_claude_code.git
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+
+# Install in development mode
+pip install -r requirements.txt
+pip install -e .
+```
 
 ## 📝 License
 
-MIT License - see LICENSE file
+MIT License - see [LICENSE](LICENSE) file for details
 
 ## 🙏 Acknowledgments
 
-- Microsoft AutoGen team
-- Anthropic for Claude and Claude Code CLI
-- Open source community
+- **Microsoft AutoGen Team** - For the powerful multi-agent framework
+- **Anthropic** - For Claude and the Claude Code CLI
+- **Open Source Community** - For invaluable feedback and contributions
+
+## 📞 Support
+
+- 📧 Issues: [GitHub Issues](https://github.com/JeremyWhittaker/autogen_claude_code/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/JeremyWhittaker/autogen_claude_code/discussions)
+- 📖 Documentation: [Project Wiki](https://github.com/JeremyWhittaker/autogen_claude_code/wiki)
 
 ---
 
-**Note**: This is an experimental integration. Always review and test generated code thoroughly before use in production environments.
+**⚡ Built with passion by developers, for developers**
+
+*Note: This is an experimental integration. Always review generated code and test thoroughly before production use.*
